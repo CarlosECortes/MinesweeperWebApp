@@ -1,0 +1,84 @@
+﻿@model MinesweeperWebApp.Models.User  // Tells Razor that this page uses the User model
+
+@{
+    ViewData["Title"] = "Register";    <!-- Sets the page title -->
+}
+
+<h2 class="text-center mt-4">Register an Account</h2>
+
+<!-- Form sends data to the POST version of Register in AccountController -->
+<form asp-action="Register" method="post" class="mt-4 container" style="max-width: 500px;">
+    <!-- Validation summary: shows model-level error messages -->
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- First Name -->
+    <div class="form-group mb-3">
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+
+    <!-- Last Name -->
+    <div class="form-group mb-3">
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+
+    <!-- Sex (dropdown menu) -->
+    <div class="form-group mb-3">
+        <label asp-for="Sex" class="form-label"></label>
+        <select asp-for="Sex" class="form-select">
+            <option value="">-- Select --</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+        <span asp-validation-for="Sex" class="text-danger"></span>
+    </div>
+
+    <!-- Age -->
+    <div class="form-group mb-3">
+        <label asp-for="Age" class="form-label"></label>
+        <input asp-for="Age" class="form-control" type="number" min="1" max="120" />
+        <span asp-validation-for="Age" class="text-danger"></span>
+    </div>
+
+    <!-- State -->
+    <div class="form-group mb-3">
+        <label asp-for="State" class="form-label"></label>
+        <input asp-for="State" class="form-control" />
+        <span asp-validation-for="State" class="text-danger"></span>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group mb-3">
+        <label asp-for="EmailAddress" class="form-label"></label>
+        <input asp-for="EmailAddress" class="form-control" />
+        <span asp-validation-for="EmailAddress" class="text-danger"></span>
+    </div>
+
+    <!-- Username -->
+    <div class="form-group mb-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group mb-4">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <!-- Submit button -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary w-100">Register</button>
+    </div>
+</form>
+
+<!-- These scripts enable client-side validation for form inputs -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
