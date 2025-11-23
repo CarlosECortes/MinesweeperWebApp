@@ -16,8 +16,10 @@ namespace MinesweeperWebApp
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Enables session services
-            builder.Services.AddSession();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+            });
 
             var app = builder.Build();
 

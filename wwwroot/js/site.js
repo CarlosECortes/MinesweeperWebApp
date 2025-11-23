@@ -1,4 +1,20 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿function playClickEffect(event) {
+    const button = event.target;
 
-// Write your JavaScript code.
+    // Create the effect
+    const burst = document.createElement("div");
+    burst.classList.add("starburst");
+
+    // Position exactly over the clicked tile
+    const rect = button.getBoundingClientRect();
+    burst.style.left = rect.left + "px";
+    burst.style.top = rect.top + "px";
+    burst.style.position = "fixed";
+
+    document.body.appendChild(burst);
+
+    // Remove it after animation completes
+    setTimeout(() => {
+        burst.remove();
+    }, 400);
+}

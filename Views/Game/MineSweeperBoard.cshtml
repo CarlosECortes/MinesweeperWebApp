@@ -1,0 +1,70 @@
+﻿@model MinesweeperWebApp.Models.GameLogic.Board
+@{
+    ViewData["Title"] = "Minesweeper Board";
+}
+
+<h2 class="text-center mt-4">Minesweeper</h2>
+
+<div class="text-center mb-3">
+    <p>Click any cell to begin playing.</p>
+</div>
+
+<div class="d-flex justify-content-center">
+
+    <!-- Add the aura wrapper around the entire board -->
+    <div class="halo-container">
+
+        <table class="table table-bordered ms-board" style="width:auto;">
+            <tbody>
+                @for (int row = 0; row < Model.Size; row++)
+                {
+                    <tr>
+                        @for (int col = 0; col < Model.Size; col++)
+                        {
+                            var cell = Model.Grid[row][col];
+
+                            <td class="p-0">
+                                <form asp-action="CellClick" method="post">
+                                    <input type="hidden" name="row" value="@row" />
+                                    <input type="hidden" name="col" value="@col" />
+
+                                    @if (cell.Visited)
+                                    {
+                                        if (cell.Live)
+                                        {
+                                            <!-- Bomb tile -->
+                                            <button type="button" class="tile-btn tile-bomb"></button>
+                                        }
+                                        else if (cell.LiveNeighbors > 0)
+                                        {
+                                            <!-- Number tile -->
+                                            <button type="button"
+                                                    class="tile-btn tile-@cell.LiveNeighbors">
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <!-- Empty revealed tile -->
+                                            <button type="button" class="tile-btn tile-empty"></button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <!-- Hidden tile (with click animation) -->
+                                        <button type="submit"
+                                                class="tile-btn tile-hidden"
+                                                onclick="playClickEffect(event)">
+                                        </button>
+                                    }
+
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div> <!-- END halo-container -->
+
+</div>

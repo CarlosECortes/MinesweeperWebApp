@@ -1,0 +1,58 @@
+﻿@model MinesweeperWebApp.Models.ViewModels.StartGameViewModel
+
+@{
+    ViewData["Title"] = "Start Game";
+}
+
+<!-- Dungeon Title -->
+<h2 class="dungeon-title mt-4">Welcome @ViewBag.Username!</h2>
+
+<!-- Add a dungeon-themed container around the content -->
+<div class="container">
+    <div class="dungeon-panel">
+
+        <p class="text-center">Choose your game settings below.</p>
+
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+
+                <!-- START NEW GAME FORM -->
+                <form asp-action="StartGame" method="post">
+
+                    <!-- BOARD SIZE -->
+                    <div class="form-group mb-3">
+                        <label asp-for="BoardSize" class="form-label"></label>
+                        <select asp-for="BoardSize" class="form-select">
+                            @foreach (var size in Model.AvailableSizes)
+                            {
+                                <option value="@size">@size x @size</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- DIFFICULTY -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Difficulty" class="form-label"></label>
+                        <select asp-for="Difficulty" class="form-select">
+                            @foreach (var diff in Model.AvailableDifficulties)
+                            {
+                                <option value="@diff">@diff</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- START BUTTON -->
+                    <button type="submit" class="btn btn-primary w-100">Start Game</button>
+
+                </form>
+
+                <!-- LOGOUT BUTTON -->
+                <form asp-controller="Account" asp-action="Logout" method="post" class="mt-3">
+                    <button class="btn btn-danger w-100">Logout</button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

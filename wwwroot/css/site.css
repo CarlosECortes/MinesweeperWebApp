@@ -1,22 +1,345 @@
-html {
-  font-size: 14px;
-}
+/* ============================================================
+   GLOBAL: BASE STYLES + BACKGROUND
+   Cold Stone Dungeon Theme
+   ============================================================ */
 
-@media (min-width: 768px) {
-  html {
+html {
     font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    padding-bottom: 60px;
+    /* Cold stone dungeon background */
+    background-image: url('/img/dungeonStone.png');
+    background-size: cover;
+    background-repeat: repeat;
+    background-attachment: fixed;
+    /* Contrast overlay for readability */
+    position: relative;
+    color: #e6e6e6;
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(10, 10, 10, 0.7);
+        z-index: -1;
+    }
+
+/* ============================================================
+   NAVBAR: Cold Stone & Iron
+   ============================================================ */
+
+.navbar-dungeon {
+    background-color: #1b1b1b !important; /* Dark iron */
+    border-bottom: 3px solid #496174 !important; /* Cold steel */
+    padding: 10px;
+}
+
+    .navbar-dungeon .navbar-brand {
+        color: #d0e2ff !important;
+        font-weight: bold;
+        font-size: 1.6rem;
+        text-shadow: 0 0 6px #89aecd;
+    }
+
+    .navbar-dungeon .nav-link {
+        color: #c8d6e8 !important;
+        margin-right: 15px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+        .navbar-dungeon .nav-link:hover {
+            color: #ffffff !important;
+            text-shadow: 0 0 8px #a2c9ff;
+        }
+
+/* ============================================================
+   HEADERS / TITLES
+   ============================================================ */
+
+.themed-title,
+.dungeon-title {
+    font-family: "Cinzel", serif;
+    color: #d7e7ff;
+    text-align: center;
+    text-shadow: 2px 2px 4px #000;
+    margin-bottom: 20px;
+}
+
+.dungeon-title {
+    font-size: 2.4rem;
+}
+
+/* ============================================================
+   PANELS / BOXES
+   ============================================================ */
+
+.dungeon-panel {
+    background: rgba(25, 25, 25, 0.85);
+    border: 2px solid #496174;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px #000;
+    margin-top: 25px;
+}
+
+/* ============================================================
+   INPUTS + DROPDOWNS
+   ============================================================ */
+
+input.form-control,
+select.form-select {
+    background-color: #121212 !important;
+    color: #d6e6ff !important;
+    border: 1px solid #496174 !important;
+    border-radius: 6px;
+}
+
+    input.form-control::placeholder {
+        color: #8faac8 !important;
+    }
+
+    input.form-control:focus,
+    select.form-select:focus {
+        background-color: #1c1c1c !important;
+        border-color: #7ca2c9 !important;
+        box-shadow: 0 0 10px #7ca2c9 !important;
+        color: #ffffff !important;
+    }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn-dungeon,
+.btn-primary {
+    background-color: #2c3e50;
+    border: 2px solid #7ca2c9;
+    color: #e6f0ff;
+    font-weight: bold;
+    transition: 0.25s;
+}
+
+    .btn-dungeon:hover,
+    .btn-primary:hover {
+        background-color: #3f5870;
+        border-color: #a8c7e6;
+        color: #ffffff;
+        box-shadow: 0 0 10px #89b4d8;
+    }
+
+/* Logout button tweak */
+.btn-link.nav-link {
+    color: #cbdaf0 !important;
+}
+
+/* ============================================================
+   GAME BOARD 
+   ============================================================ */
+
+.ms-board {
+    border-collapse: collapse;
+    background-color: rgba(20, 20, 20, 0.85);
+    padding: 12px;
+    border: 3px solid #496174;
+    border-radius: 8px;
+    box-shadow: 0 0 20px #000;
+}
+
+.tile-btn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+.tile-hidden {
+    background-image: url('/img/hiddenTile.png');
+}
+
+.tile-empty {
+    background-image: url('/img/emptyTile.png');
+}
+
+.tile-num {
+    background-color: rgba(230, 230, 230, 0.9);
+    color: #001f3f;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+/* Number tiles 1–9 */
+.tile-1 {
+    background-image: url('/img/tileOne.png');
+}
+
+.tile-2 {
+    background-image: url('/img/tileTwo.png');
+}
+
+.tile-3 {
+    background-image: url('/img/tileThree.png');
+}
+
+.tile-4 {
+    background-image: url('/img/tileFour.png');
+}
+
+.tile-5 {
+    background-image: url('/img/tileFive.png');
+}
+
+.tile-6 {
+    background-image: url('/img/tileSix.png');
+}
+
+.tile-7 {
+    background-image: url('/img/tileSeven.png');
+}
+
+.tile-8 {
+    background-image: url('/img/tileEight.png');
+}
+
+.tile-9 {
+    background-image: url('/img/tileNine.png');
+}
+
+.tile-1, .tile-2, .tile-3,
+.tile-4, .tile-5, .tile-6,
+.tile-7, .tile-8, .tile-9 {
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer.dungeon-footer {
+    background-color: #2b231a !important;
+    border-top: 2px solid #7a5e42;
+    padding: 6px 10px !important;
+    font-size: 0.9rem;
+    color: #d9c27e;
+    text-align: center;
+    margin-top: 10px !important;
+}
+
+/* -----------------------------------
+   FLOATING ANIMATION (Dungeon Magic)
+----------------------------------- */
+.floating-image {
+    animation: floatUpDown 3s ease-in-out infinite;
+}
+
+@keyframes floatUpDown {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* --------------------------
+   Glowing Magical Aura Wrapper
+--------------------------- */
+.halo-container {
+    position: relative;
+    display: inline-block;
+    padding: 10px; /* space for the glow */
+}
+
+    /* Rune glow behind the board */
+    .halo-container::before {
+        content: "";
+        position: absolute;
+        top: -12px;
+        left: -12px;
+        right: -12px;
+        bottom: -12px;
+        border: 2px dashed rgba(217, 194, 126, 0.45); /* gold/bronze dash */
+        border-radius: 10px;
+        box-shadow: 0 0 25px rgba(217, 194, 126, 0.5), 0 0 45px rgba(140, 110, 60, 0.45);
+        animation: runePulse 3.5s infinite ease-in-out;
+        pointer-events: none;
+    }
+
+/* Pulse animation for glowing runes */
+@keyframes runePulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.65;
+    }
+
+    50% {
+        transform: scale(1.04);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.65;
+    }
+}
+/* ------------------------------------------
+   CLICK STARBURST EFFECT
+------------------------------------------ */
+
+.starburst {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    animation: starburstAnim 0.35s ease-out forwards;
+    z-index: 50;
+}
+
+    .starburst::before,
+    .starburst::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #ffd86b; /* gold glow */
+        opacity: 0.8;
+    }
+
+    .starburst::after {
+        border-color: #fff3c5; /* lighter glow */
+    }
+
+@keyframes starburstAnim {
+    0% {
+        transform: scale(0.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
 }

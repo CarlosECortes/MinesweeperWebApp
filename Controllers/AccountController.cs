@@ -88,7 +88,7 @@ namespace MinesweeperWebApp.Controllers
                 HttpContext.Session.SetString("Username", user.Username);
 
                 // Redirect to the restricted StartGame page (I will create it in future)
-                return RedirectToAction("StartGame");
+                return RedirectToAction("StartGame", "Game");
             }
 
             // If no user was found, show an error message and redisplay fomr
@@ -97,26 +97,6 @@ namespace MinesweeperWebApp.Controllers
         } 
 
         // ---------------- Restricted Page --------------------
-
-        // Page will only be accessible to users who are logged in
-        public IActionResult StartGame()
-        {
-            // Check if the session variable "Username" exists
-            var username = HttpContext.Session.GetString("Username");
-
-            // If the session is empty, redirect the user back to login
-            if (string.IsNullOrEmpty(username))
-            {
-                // Prevents unauthorized access
-                return RedirectToAction("Login");
-            }
-
-            // If the user is logged in, pass the username to the view
-            ViewBag.Username = username;
-
-            // Display the StartGame view (placeholder for now)
-            return View();
-        }
 
         // Simple logout function for testing. 
         [HttpPost]

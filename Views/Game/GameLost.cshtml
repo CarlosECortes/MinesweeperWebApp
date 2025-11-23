@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Defeat";
+}
+
+<div class="d-flex justify-content-center mt-5">
+    <div class="dungeon-panel text-center" style="max-width: 700px; width: 100%;">
+
+        <h2 class="themed-title mb-4">You Perished in the Dungeon…</h2>
+
+        <!-- Glowing animated defeat image -->
+        <div class="halo-container mt-4">
+            <img src="/img/lossPage.png"
+                 class="img-fluid floating-image"
+                 style="max-width: 500px; width: 90%; image-rendering: pixelated;" />
+        </div>
+
+        <p class="mt-4" style="font-size: 1.2rem;">
+            Your bones join the forgotten ones… Try again?
+        </p>
+
+        <a class="btn-dungeon mt-4" asp-controller="Game" asp-action="StartGame">Retry</a>
+
+    </div>
+</div>

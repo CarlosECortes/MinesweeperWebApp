@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Victory!";
+}
+
+<div class="d-flex justify-content-center mt-5">
+    <div class="dungeon-panel text-center" style="max-width: 700px; width: 100%;">
+
+        <h2 class="themed-title mb-4">You Cleared the Dungeon!</h2>
+
+        <!-- Glowing animated victory image -->
+        <div class="halo-container mt-4">
+            <img src="/img/winPage.png"
+                 class="img-fluid floating-image"
+                 style="max-width: 500px; width: 90%; image-rendering: pixelated;" />
+        </div>
+
+        <p class="mt-4" style="font-size: 1.2rem;">
+            The monsters tremble… your legend grows.
+        </p>
+
+        <a class="btn-dungeon mt-4" asp-controller="Game" asp-action="StartGame">Play Again</a>
+
+    </div>
+</div>
