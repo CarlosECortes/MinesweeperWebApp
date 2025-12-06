@@ -225,6 +225,21 @@ select.form-select {
     image-rendering: pixelated;
 }
 
+.tile-flag {
+    background-image: url('/img/flagTile.png');
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+.tile-bomb {
+    background-image: url('/img/bomb.png');
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+
 
 /* ============================================================
    FOOTER

@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Represents a single Minesweeper tile.
-    /// Must stay simple so serialization is never needed.
+
     /// </summary>
     public class Cell
     {

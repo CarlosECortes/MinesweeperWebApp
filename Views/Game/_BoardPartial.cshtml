@@ -1,0 +1,15 @@
+﻿@model MinesweeperWebApp.Models.GameLogic.Board
+
+<table class="table table-bordered ms-board" style="width:auto;">
+    <tbody>
+        @for (int row = 0; row < Model.Size; row++)
+        {
+            <tr>
+                @for (int col = 0; col < Model.Size; col++)
+                {
+                    @await Html.PartialAsync("_CellPartial", Model.Grid[row][col])
+                }
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MinesweeperWebApp.Models.GameLogic;
+using MinesweeperWebApp.Models.GameLogic.Services;
 using MinesweeperWebApp.Models.ViewModels;
 
 namespace MinesweeperWebApp.Controllers
@@ -8,24 +9,21 @@ namespace MinesweeperWebApp.Controllers
     {
         private const string SessionBoardExists = "BoardExists";
 
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
         // GET: Start Game
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
         public IActionResult StartGame()
         {
             if (HttpContext.Session.GetString("Username") == null)
                 return RedirectToAction("Login", "Account");
 
-            // Load username into ViewBag
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
-            var model = new StartGameViewModel();
-            return View(model);
+            return View(new StartGameViewModel());
         }
 
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
         // POST: Start Game
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
         [HttpPost]
         public IActionResult StartGame(StartGameViewModel model)
         {
@@ -40,7 +38,7 @@ namespace MinesweeperWebApp.Controllers
                 _ => 0.10
             };
 
-            // Create a new board object
+            // Create and configure the board
             Board board = new Board(model.BoardSize)
             {
                 Difficulty = difficultyValue
@@ -49,21 +47,17 @@ namespace MinesweeperWebApp.Controllers
             board.SetupLiveNeighbors();
             board.CalculateLiveNeighbors();
 
-            // Store board in global memory
             GlobalBoardStore.CurrentBoard = board;
-
-            // Just mark that a board exists
             HttpContext.Session.SetString(SessionBoardExists, "true");
 
             return RedirectToAction("MineSweeperBoard");
         }
 
-        // --------------------------------------------------------------------
-        // GET: Minesweeper Game Board
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
+        // GET: Game Board
+        // --------------------------------------------------------------
         public IActionResult MineSweeperBoard()
         {
-            // Make sure a board actually exists
             if (GlobalBoardStore.CurrentBoard == null ||
                 HttpContext.Session.GetString(SessionBoardExists) == null)
             {
@@ -73,57 +67,64 @@ namespace MinesweeperWebApp.Controllers
             return View(GlobalBoardStore.CurrentBoard);
         }
 
-        // --------------------------------------------------------------------
-        // POST: Cell Click
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
+        // AJAX: LEFT CLICK
+        // --------------------------------------------------------------
         [HttpPost]
-        public IActionResult CellClick(int row, int col)
+        public IActionResult CellClickAjax(int row, int col)
         {
-            Board? board = GlobalBoardStore.CurrentBoard;
+            if (GlobalBoardStore.CurrentBoard == null)
+                return BadRequest("Board not found.");
 
-            if (board == null)
-                return RedirectToAction("StartGame");
+            var service = new GameService(GlobalBoardStore.CurrentBoard);
+            string result = service.HandleLeftClick(row, col);
 
-            Cell cell = board.Grid[row][col];
+            if (result == "win")
+                return Json(new { redirect = Url.Action("GameWon") });
 
-            // ------------------- CLICKED ON A BOMB -------------------
-            if (cell.Live)
-            {
-                cell.Visited = true;
+            if (result == "loss")
+                return Json(new { redirect = Url.Action("GameLost", new { showBoard = true }) });
 
-                // Reveal all bombs
-                foreach (var r in Enumerable.Range(0, board.Size))
-                {
-                    foreach (var c in Enumerable.Range(0, board.Size))
-                    {
-                        if (board.Grid[r][c].Live)
-                            board.Grid[r][c].Visited = true;
-                    }
-                }
-
-                return RedirectToAction("GameLost");
-            }
-
-            // ------------------- SAFE CLICK -------------------
-            cell.Visited = true;
-
-            // Flood fill for empty tiles
-            var list = board.FloodFillMVC(row, col);
-
-            foreach (var (r, c) in list)
-            {
-                board.Grid[r][c].Visited = true;
-            }
-
-            // ------------------- CHECK WIN -------------------
-            if (board.CheckForWin())
-                return RedirectToAction("GameWon");
-
-            return RedirectToAction("MineSweeperBoard");
+            return PartialView("_BoardPartial", GlobalBoardStore.CurrentBoard);
         }
 
-        // --------------------------------------------------------------------
+        // --------------------------------------------------------------
+        // AJAX: RIGHT CLICK TOGGLE FLAG
+        // --------------------------------------------------------------
+        [HttpPost]
+        public IActionResult ToggleFlagAjax(int row, int col)
+        {
+            if (GlobalBoardStore.CurrentBoard == null)
+                return BadRequest("Board not found.");
+
+            var service = new GameService(GlobalBoardStore.CurrentBoard);
+            service.ToggleFlag(row, col);
+
+            return PartialView("_BoardPartial", GlobalBoardStore.CurrentBoard);
+        }
+
+        // --------------------------------------------------------------
+        // AJAX: TIMESTAMP (simple partial)
+        // --------------------------------------------------------------
+        public IActionResult Timestamp()
+        {
+            return PartialView("_TimestampPartial", DateTime.Now);
+        }
+
+        // --------------------------------------------------------------
+        // WIN VIEW
+        // --------------------------------------------------------------
         public IActionResult GameWon() => View();
-        public IActionResult GameLost() => View();
+
+        // --------------------------------------------------------------
+        // LOSS VIEW
+        // --------------------------------------------------------------
+        public IActionResult GameLost(bool showBoard = false)
+        {
+            if (showBoard && GlobalBoardStore.CurrentBoard != null)
+                return View(GlobalBoardStore.CurrentBoard);
+
+            return View();
+        }
     }
 }

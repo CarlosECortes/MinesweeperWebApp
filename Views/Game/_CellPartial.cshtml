@@ -1,0 +1,13 @@
+﻿@model MinesweeperWebApp.Models.GameLogic.Cell
+
+<td class="p-0">
+    <button class="tile-btn
+                   @(Model.Visited
+                                 ? (Model.Live ? "tile-bomb"
+                                               : Model.LiveNeighbors > 0 ? $"tile-{Model.LiveNeighbors}"
+                                                                         : "tile-empty")
+                                 : (Model.IsFlagged ? "tile-flag" : "tile-hidden"))"
+            data-row="@Model.Row"
+            data-col="@Model.Column">
+    </button>
+</td>

@@ -1,4 +1,5 @@
-﻿@{
+﻿@model MinesweeperWebApp.Models.GameLogic.Board
+@{
     ViewData["Title"] = "Defeat";
 }
 
@@ -22,3 +23,17 @@
 
     </div>
 </div>
+
+<!-- Render the full revealed board after defeat -->
+@if (Model != null)
+{
+    <div class="d-flex justify-content-center mt-4">
+        <div class="halo-container">
+            @await Html.PartialAsync("_BoardPartial", Model)
+        </div>
+    </div>
+
+    <p class="text-center mt-3" style="color: #d9c27e;">
+        All traps and dangers revealed...
+    </p>
+}

@@ -1,70 +1,112 @@
 ﻿@model MinesweeperWebApp.Models.GameLogic.Board
+
 @{
     ViewData["Title"] = "Minesweeper Board";
 }
 
 <h2 class="text-center mt-4">Minesweeper</h2>
 
-<div class="text-center mb-3">
-    <p>Click any cell to begin playing.</p>
-</div>
+<!-- Timestamp updates automatically with AJAX -->
+<div id="timestamp-area" class="text-center mb-3"></div>
 
 <div class="d-flex justify-content-center">
 
-    <!-- Add the aura wrapper around the entire board -->
     <div class="halo-container">
 
-        <table class="table table-bordered ms-board" style="width:auto;">
-            <tbody>
-                @for (int row = 0; row < Model.Size; row++)
-                {
-                    <tr>
-                        @for (int col = 0; col < Model.Size; col++)
-                        {
-                            var cell = Model.Grid[row][col];
+        <!-- AJAX will replace only this DIV when a cell updates -->
+        <div id="board-container">
 
-                            <td class="p-0">
-                                <form asp-action="CellClick" method="post">
-                                    <input type="hidden" name="row" value="@row" />
-                                    <input type="hidden" name="col" value="@col" />
+            <table class="table table-bordered ms-board" style="width:auto;">
+                <tbody>
+                    @for (int row = 0; row < Model.Size; row++)
+                    {
+                        <tr>
+                            @for (int col = 0; col < Model.Size; col++)
+                            {
+                                @await Html.PartialAsync("_CellPartial", Model.Grid[row][col])
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-                                    @if (cell.Visited)
-                                    {
-                                        if (cell.Live)
-                                        {
-                                            <!-- Bomb tile -->
-                                            <button type="button" class="tile-btn tile-bomb"></button>
-                                        }
-                                        else if (cell.LiveNeighbors > 0)
-                                        {
-                                            <!-- Number tile -->
-                                            <button type="button"
-                                                    class="tile-btn tile-@cell.LiveNeighbors">
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <!-- Empty revealed tile -->
-                                            <button type="button" class="tile-btn tile-empty"></button>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <!-- Hidden tile (with click animation) -->
-                                        <button type="submit"
-                                                class="tile-btn tile-hidden"
-                                                onclick="playClickEffect(event)">
-                                        </button>
-                                    }
-
-                                </form>
-                            </td>
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
+        </div> <!-- END board-container -->
 
     </div> <!-- END halo-container -->
 
 </div>
+
+@section Scripts {
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+        // ----------------------------------------------------------
+        // LEFT CLICK — normal cell reveal
+        // ----------------------------------------------------------
+               $(document).on("click", ".tile-btn", function (e) {
+            e.preventDefault();
+
+            let row = $(this).data("row");
+            let col = $(this).data("col");
+
+            // Prevent opening flagged tiles
+            if ($(this).hasClass("tile-flag"))
+                return;
+
+            $.ajax({
+                url: "/Game/CellClickAjax",
+                type: "POST",
+                data: { row: row, col: col },
+                success: function (result) {
+
+                    // WIN / LOSS redirect logic
+                    if (result.redirect) {
+                        window.location = result.redirect;
+                        return;
+                    }
+
+                    // Update board normally
+                    $("#board-container").html(result);
+                    updateTimestamp();
+                }
+            });
+        });
+
+        // ----------------------------------------------------------
+        // RIGHT CLICK — toggle flag
+        // ----------------------------------------------------------
+        $(document).on("contextmenu", ".tile-btn", function (e) {
+            e.preventDefault();
+
+            let row = $(this).data("row");
+            let col = $(this).data("col");
+
+            $.ajax({
+                url: "/Game/ToggleFlagAjax",
+                type: "POST",
+                data: { row: row, col: col },
+                success: function (html) {
+                    $("#board-container").html(html);
+                    updateTimestamp();
+                }
+            });
+        });
+
+        // ----------------------------------------------------------
+        // TIMESTAMP — updated every click via AJAX
+        // ----------------------------------------------------------
+        function updateTimestamp() {
+            $.ajax({
+                url: "/Game/Timestamp",
+                success: function (data) {
+                    $("#timestamp-area").html(data);
+                }
+            });
+        }
+
+        // Load timestamp when page loads
+        updateTimestamp();
+    </script>
+
+}
