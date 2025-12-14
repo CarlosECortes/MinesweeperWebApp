@@ -6,8 +6,22 @@
 
 <h2 class="text-center mt-4">Minesweeper</h2>
 
+@if (TempData["SaveMessage"] != null)
+{
+    <div class="alert alert-success text-center">
+        @TempData["SaveMessage"]
+    </div>
+}
+
+
 <!-- Timestamp updates automatically with AJAX -->
 <div id="timestamp-area" class="text-center mb-3"></div>
+
+<!-- Save Game button -->
+<form asp-action="SaveGame" method="post" class="text-center mb-3">
+    <button type="submit" class="btn btn-primary">Save Game</button>
+</form>
+
 
 <div class="d-flex justify-content-center">
 
@@ -35,6 +49,11 @@
     </div> <!-- END halo-container -->
 
 </div>
+
+<form asp-action="SavedGames" method="get" class="text-center mb-3">
+    <button type="submit" class="btn btn-secondary">Show Saved Games</button>
+</form>
+
 
 @section Scripts {
 

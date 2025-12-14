@@ -1,0 +1,41 @@
+﻿@model IEnumerable<MinesweeperWebApp.Models.GameModel>
+
+@{
+    ViewData["Title"] = "Saved Games";
+}
+
+<h2 class="text-center mt-4 text-light">Saved Games</h2>
+
+<table class="table table-bordered mt-4 text-light">
+    <thead class="table-dark">
+        <tr>
+            <th>Saved On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var game in Model)
+        {
+            <tr>
+                <td>
+                    @(game.DateSaved.ToString("MM/dd/yyyy hh:mm tt"))
+                </td>
+
+                <td>
+                    <!-- LOAD BUTTON -->
+                    <form asp-action="LoadGame" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@game.Id" />
+                        <button class="btn btn-success btn-sm">Load</button>
+                    </form>
+
+                    <!-- DELETE BUTTON -->
+                    <form asp-action="DeleteGame" method="post" style="display:inline;"
+                          onsubmit="return confirm('Are you sure you want to delete this saved game?');">
+                        <input type="hidden" name="id" value="@game.Id" />
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

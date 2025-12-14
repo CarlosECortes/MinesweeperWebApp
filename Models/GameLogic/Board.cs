@@ -5,35 +5,48 @@ namespace MinesweeperWebApp.Models.GameLogic
 {
     /// <summary>
     /// Represents the entire Minesweeper board and all game logic.
-    /// Compatible with GlobalBoardStore (no JSON serialization required).
+    /// Now fully JSON-serializable for saving and loading game state.
     /// </summary>
     public class Board
     {
         // --------------------------- PUBLIC PROPERTIES ---------------------------
 
-        /// <summary>The size of the board (NxN).</summary>
-        public int Size { get; private set; }
+        /// <summary>
+        /// Size of the board (NxN). Setter must be public for JSON restore.
+        /// </summary>
+        public int Size { get; set; }
 
         /// <summary>
-        /// The game grid stored as a jagged array (serializable-friendly structure).
+        /// Jagged array storing all cells. Setter must be public for JSON restore.
         /// </summary>
-        public Cell[][] Grid { get; private set; }
+        public Cell[][] Grid { get; set; }
 
         /// <summary>
         /// Percentage of mines (0.10 = easy, 0.15 = medium, etc.)
+        /// This is also saved and restored.
         /// </summary>
         public double Difficulty { get; set; }
 
-        // --------------------------- CONSTRUCTOR ---------------------------
+        // --------------------------- REQUIRED FOR JSON ---------------------------
 
         /// <summary>
-        /// Creates an empty NxN Minesweeper grid. Mines are placed later.
+        /// Empty constructor REQUIRED for JSON deserialization.
+        /// DO NOT initialize the grid here — JSON will populate it automatically.
+        /// </summary>
+        public Board()
+        {
+        }
+
+        // --------------------------- NORMAL CONSTRUCTOR ---------------------------
+
+        /// <summary>
+        /// Creates a fresh board when starting a NEW game.
         /// </summary>
         public Board(int size)
         {
             Size = size;
 
-            // Create the jagged array
+            // Create the jagged cell array
             Grid = new Cell[size][];
 
             for (int r = 0; r < size; r++)
@@ -42,7 +55,6 @@ namespace MinesweeperWebApp.Models.GameLogic
 
                 for (int c = 0; c < size; c++)
                 {
-                    // Create each individual cell
                     Grid[r][c] = new Cell
                     {
                         Row = r,
@@ -69,7 +81,7 @@ namespace MinesweeperWebApp.Models.GameLogic
             int mineCount = (int)(totalCells * Difficulty);
 
             if (mineCount < 1)
-                mineCount = 1; // Always at least one mine.
+                mineCount = 1;
 
             int placed = 0;
 
@@ -97,13 +109,11 @@ namespace MinesweeperWebApp.Models.GameLogic
             {
                 for (int c = 0; c < Size; c++)
                 {
-                    // Skip bombs
                     if (Grid[r][c].Live)
                         continue;
 
                     int count = 0;
 
-                    // Check all 8 neighbors around current cell
                     for (int nr = Math.Max(0, r - 1); nr <= Math.Min(Size - 1, r + 1); nr++)
                     {
                         for (int nc = Math.Max(0, c - 1); nc <= Math.Min(Size - 1, c + 1); nc++)
@@ -121,46 +131,37 @@ namespace MinesweeperWebApp.Models.GameLogic
             }
         }
 
-        // --------------------------- FLOOD FILL (SAFE EXPANSION) ---------------------------
+        // --------------------------- FLOOD FILL ---------------------------
 
         /// <summary>
-        /// Returns a list of coordinates to reveal.
-        /// Does NOT mark cells visited. Controller must do that.
+        /// External method used by controller/service to reveal tiles.
+        /// Returns list of cells to reveal. Does not mark visited.
         /// </summary>
         public List<(int row, int col)> FloodFillMVC(int row, int col)
         {
-            var toReveal = new List<(int, int)>();
+            var toReveal = new List<(int row, int col)>();
             FloodFillInternal(row, col, toReveal);
             return toReveal;
         }
 
-        /// <summary>
-        /// Internal recursive flood fill. Reveals empty areas.
-        /// </summary>
         private void FloodFillInternal(int row, int col, List<(int, int)> toReveal)
         {
-            // Out of bounds check
             if (row < 0 || row >= Size || col < 0 || col >= Size)
                 return;
 
             var cell = Grid[row][col];
 
-            // Never reveal a mine
             if (cell.Live)
                 return;
 
-            // Prevent infinite recursion
             if (toReveal.Contains((row, col)))
                 return;
 
-            // Add this cell to reveal list
             toReveal.Add((row, col));
 
-            // If numbered tile, stop expansion here
             if (cell.LiveNeighbors > 0)
                 return;
 
-            // Recursively reveal neighbors ONLY for zero-value cells
             FloodFillInternal(row - 1, col, toReveal);
             FloodFillInternal(row + 1, col, toReveal);
             FloodFillInternal(row, col - 1, toReveal);
@@ -174,7 +175,7 @@ namespace MinesweeperWebApp.Models.GameLogic
         // --------------------------- CHECK FOR WIN ---------------------------
 
         /// <summary>
-        /// If every non-mine cell has been revealed → player wins.
+        /// A win occurs when all non-mine cells have been visited.
         /// </summary>
         public bool CheckForWin()
         {
@@ -189,10 +190,10 @@ namespace MinesweeperWebApp.Models.GameLogic
             return true;
         }
 
-        // --------------------------- REVEAL MINES ON LOSS ---------------------------
+        // --------------------------- REVEAL ALL MINES ON LOSS ---------------------------
 
         /// <summary>
-        /// Marks all bombs as visited so the UI can show them.
+        /// On game loss, show all mines by marking them visited.
         /// </summary>
         public void RevealAllMines()
         {

@@ -13,5 +13,8 @@ namespace MinesweeperWebApp.Data
 
         // DbSet represents a table in the database
         public DbSet<User> Users { get; set; }
+
+        // NEW: Table for saving game data
+        public DbSet<GameModel> Games { get; set; }
     }
 }

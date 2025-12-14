@@ -1,12 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // For EF queries
+using MinesweeperWebApp.Data;       // ApplicationDbContext
+using MinesweeperWebApp.Models;
 using MinesweeperWebApp.Models.GameLogic;
 using MinesweeperWebApp.Models.GameLogic.Services;
 using MinesweeperWebApp.Models.ViewModels;
+using Newtonsoft.Json;              // For serialization
 
 namespace MinesweeperWebApp.Controllers
 {
     public class GameController : Controller
+
     {
+        private readonly ApplicationDbContext _context;
+
+        public GameController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         private const string SessionBoardExists = "BoardExists";
 
         // --------------------------------------------------------------
@@ -66,6 +78,129 @@ namespace MinesweeperWebApp.Controllers
 
             return View(GlobalBoardStore.CurrentBoard);
         }
+        // SAVE GAME
+        [HttpPost]
+        public async Task<IActionResult> SaveGame()
+        {
+            // Ensure user is logged in
+            string username = HttpContext.Session.GetString("Username");
+            if (username == null)
+                return RedirectToAction("Login", "Account");
+
+            // Ensure a game is in progress
+            if (GlobalBoardStore.CurrentBoard == null)
+                return RedirectToAction("StartGame");
+
+            // Look up the logged-in user
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            // Serialize the current board
+            string jsonBoard = JsonConvert.SerializeObject(GlobalBoardStore.CurrentBoard);
+
+            // Create a new saved game entry
+            GameModel game = new GameModel
+            {
+                UserId = user.Id,
+                DateSaved = DateTime.Now,
+                GameData = jsonBoard
+            };
+
+            // Save to DB
+            _context.Games.Add(game);
+            await _context.SaveChangesAsync();
+
+            TempData["SaveMessage"] = "Game saved successfully!";
+
+            return RedirectToAction("MineSweeperBoard");
+        }
+        public async Task<IActionResult> SavedGames()
+        {
+            string username = HttpContext.Session.GetString("Username");
+            if (username == null)
+                return RedirectToAction("Login", "Account");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            // Get all saved games for this user
+            var games = await _context.Games
+                .Where(g => g.UserId == user.Id)
+                .OrderByDescending(g => g.DateSaved)
+                .ToListAsync();
+
+            return View(games);
+        }
+
+        // --------------------------------------------------------------
+        // POST: Load a saved game from the database
+        // --------------------------------------------------------------
+        [HttpPost]
+        public async Task<IActionResult> LoadGame(int id)
+        {
+            // Ensure user is logged in
+            string username = HttpContext.Session.GetString("Username");
+            if (username == null)
+                return RedirectToAction("Login", "Account");
+
+            // Get the logged-in user record
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            // Retrieve the saved game using its ID
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id && g.UserId == user.Id);
+
+            // If the saved game doesn't exist or belongs to another user
+            if (game == null)
+                return RedirectToAction("SavedGames");
+
+            // Deserialize the JSON back into a Board object
+            GlobalBoardStore.CurrentBoard = JsonConvert.DeserializeObject<Board>(game.GameData);
+
+            // Mark the session so the board is considered active
+            HttpContext.Session.SetString("BoardExists", "true");
+
+            // Redirect to the game board so the user resumes playing
+            return RedirectToAction("MineSweeperBoard");
+        }
+
+        // --------------------------------------------------------------
+        // POST: Delete a saved game from the database
+        // --------------------------------------------------------------
+        [HttpPost]
+        public async Task<IActionResult> DeleteGame(int id)
+        {
+            // Ensure user is logged in
+            string username = HttpContext.Session.GetString("Username");
+            if (username == null)
+                return RedirectToAction("Login", "Account");
+
+            // Get the logged-in user record
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            // Find the game only if it belongs to this user
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == id && g.UserId == user.Id);
+
+            // If not found, return to the list
+            if (game == null)
+                return RedirectToAction("SavedGames");
+
+            // Remove game from database
+            _context.Games.Remove(game);
+            await _context.SaveChangesAsync();
+
+            // Show a confirmation message
+            TempData["SaveMessage"] = "Saved game deleted.";
+
+            // Return to the saved games list
+            return RedirectToAction("SavedGames");
+        }
+
 
         // --------------------------------------------------------------
         // AJAX: LEFT CLICK
